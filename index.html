@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BRO</title>
+    <meta name="description" content="BRO command desk. Live public GitHub, live marks, free router. No orders." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+    <style>
+      :root { color-scheme: dark; --bg:#030806; --surface:#0b1410; --line:#1c3328; --fg:#e7f6ee; --muted:#7d9b89; --primary:#3dff8a; --danger:#ff6b6b; }
+      * { box-sizing: border-box; }
+      body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.45 "IBM Plex Mono", ui-monospace, monospace; }
+      header, main { padding:12px; }
+      header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
+      h1 { margin:0; font-family:"Chakra Petch", sans-serif; letter-spacing:.04em; font-size:22px; }
+      .dot { width:8px; height:8px; border-radius:99px; background:var(--primary); display:inline-block; margin-right:8px; }
+      .grid { display:grid; gap:12px; }
+      .stats { grid-template-columns:repeat(2,1fr); }
+      .floor { grid-template-columns:1fr; }
+      @media (min-width:900px) { .stats { grid-template-columns:repeat(4,1fr); } .floor { grid-template-columns:1fr 1.2fr; } }
+      .card, .stat { border:1px solid var(--line); background:var(--surface); padding:12px; }
+      .k { color:var(--muted); font-size:11px; letter-spacing:.14em; }
+      .v { color:var(--primary); font-size:28px; margin:2px 0; }
+      h2 { margin:0 0 8px; font-size:12px; letter-spacing:.16em; color:var(--primary); }
+      a { color:var(--primary); }
+      ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+      li { display:flex; justify-content:space-between; gap:8px; }
+      button, input { min-height:44px; font:inherit; }
+      button { background:transparent; color:var(--primary); border:1px solid var(--primary); padding:0 12px; }
+      button.solid { background:var(--primary); color:var(--bg); font-weight:600; }
+      input { width:100%; background:var(--bg); color:var(--fg); border:1px solid var(--line); padding:0 12px; }
+      .row { display:flex; gap:8px; margin-top:8px; }
+      .row input { flex:1; }
+      .neg { color:var(--danger); }
+      .note { color:var(--muted); font-size:12px; margin-top:8px; }
+      #reply { white-space:pre-wrap; }
+      .seat { animation: pulse 1.6s ease-in-out infinite; }
+      @keyframes pulse { 50% { box-shadow:0 0 12px var(--primary); } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><span class="dot"></span>BRO</h1>
+      <span id="clock" class="k"></span>
+    </header>
+    <main class="grid">
+      <section class="grid stats" aria-label="Desk counts">
+        <div class="stat"><div class="k">GITHUB</div><div class="v" id="repoCount">…</div><div class="note">public repos</div></div>
+        <div class="stat"><div class="k">ORE</div><div class="v" id="oreMark">…</div><div class="note" id="orePx">live mark</div></div>
+        <div class="stat"><div class="k">SOL</div><div class="v" id="solMark">…</div><div class="note" id="solPx">live mark</div></div>
+        <div class="stat"><div class="k">USDC</div><div class="v" id="usdcMark">…</div><div class="note" id="usdcPx">live mark</div></div>
+      </section>
+      <section class="grid floor">
+        <article class="card">
+          <h2>GITHUB</h2>
+          <ul id="repos"></ul>
+          <p class="note" id="feed">Fetching CodesbyFebin public repos.</p>
+          <button type="button" id="sync">Sync</button>
+        </article>
+        <article class="card">
+          <h2>ASK</h2>
+          <p class="note">The free router answers in the browser. Grok stays on the private desk, because a static page cannot hold that key.</p>
+          <div class="row">
+            <input id="prompt" maxlength="500" value="What is on this desk?" />
+            <button class="solid" type="button" id="ask">Ask</button>
+          </div>
+          <p id="reply"></p>
+        </article>
+      </section>
+      <article class="card">
+        <h2>CREW</h2>
+        <ul>
+          <li><span class="seat">Watch</span><span id="watch">Waiting on marks.</span></li>
+          <li><span>Thesis</span><span id="thesis">One claim from the marks.</span></li>
+          <li><span>Size</span><span>Book stays at 100. No order.</span></li>
+        </ul>
+        <p class="note" id="bookNote">Live marks. A pass does not send an order.</p>
+      </article>
+    </main>
+    <script>
+      const ORE = "oreoU2P8bN6jkk3jbaiVxYnG1dCXcYxwhwyK9jSybcp";
+      const SOL = "So11111111111111111111111111111111111111112";
+      const tick = () => {
+        const now = new Date();
+        document.getElementById("clock").textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      };
+      tick();
+      setInterval(tick, 15000);
+      const pct = (n) => (n < 0 ? "−" : "+") + Math.abs(n).toFixed(1) + "%";
+      const money = (n) => "$" + Number(n).toFixed(n >= 1 ? 2 : 4);
+      function pair(body, symbol) {
+        const pairs = (body.pairs || []).filter((p) => p.chainId === "solana" && p.baseToken && p.baseToken.symbol === symbol);
+        pairs.sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
+        return pairs[0];
+      }
+      async function load() {
+        const feed = document.getElementById("feed");
+        try {
+          const repos = await fetch("https://api.github.com/users/CodesbyFebin/repos?sort=updated&per_page=6").then((r) => r.json());
+          const list = document.getElementById("repos");
+          list.replaceChildren();
+          (Array.isArray(repos) ? repos : []).forEach((repo) => {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = repo.html_url;
+            a.target = "_blank";
+            a.rel = "noreferrer";
+            a.textContent = repo.name;
+            const span = document.createElement("span");
+            span.textContent = String(repo.stargazers_count || 0) + " stars";
+            li.append(a, span);
+            list.append(li);
+          });
+          document.getElementById("repoCount").textContent = String(list.children.length);
+        } catch {
+          feed.textContent = "GitHub did not answer.";
+        }
+        try {
+          const [oreBody, solBody, usdcBody] = await Promise.all([
+            fetch("https://api.dexscreener.com/latest/dex/tokens/" + ORE).then((r) => r.json()),
+            fetch("https://api.dexscreener.com/latest/dex/tokens/" + SOL).then((r) => r.json()),
+            fetch("https://api.coinbase.com/v2/prices/USDC-USD/spot").then((r) => r.json()),
+          ]);
+          const ore = pair(oreBody, "ORE");
+          const sol = pair(solBody, "SOL");
+          if (ore) {
+            document.getElementById("oreMark").textContent = pct(ore.priceChange && ore.priceChange.h24 || 0);
+            document.getElementById("oreMark").className = (ore.priceChange && ore.priceChange.h24 < 0) ? "v neg" : "v";
+            document.getElementById("orePx").textContent = money(ore.priceUsd);
+            document.getElementById("watch").textContent = "ORE " + money(ore.priceUsd) + " " + pct(ore.priceChange && ore.priceChange.h24 || 0);
+            document.getElementById("thesis").textContent = (ore.priceChange && ore.priceChange.h24 < 0) ? "ORE is the red sleeve. Inferred from the live mark, not an order." : "No red sleeve on ORE.";
+          }
+          if (sol) {
+            document.getElementById("solMark").textContent = pct(sol.priceChange && sol.priceChange.h24 || 0);
+            document.getElementById("solMark").className = (sol.priceChange && sol.priceChange.h24 < 0) ? "v neg" : "v";
+            document.getElementById("solPx").textContent = money(sol.priceUsd);
+          }
+          const usdc = Number(usdcBody.data && usdcBody.data.amount);
+          if (Number.isFinite(usdc)) {
+            document.getElementById("usdcMark").textContent = "0.0%";
+            document.getElementById("usdcPx").textContent = money(usdc);
+          }
+          feed.textContent = "Live public repos and marks. No order was sent.";
+        } catch {
+          feed.textContent = "Marks did not load.";
+        }
+      }
+      document.getElementById("sync").onclick = load;
+      document.getElementById("ask").onclick = async () => {
+        const button = document.getElementById("ask");
+        const prompt = document.getElementById("prompt").value.trim();
+        const reply = document.getElementById("reply");
+        if (!prompt) return;
+        button.disabled = true;
+        reply.textContent = "Asking the free router.";
+        try {
+          const res = await fetch("https://text.pollinations.ai/openai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: "openai", messages: [{ role: "user", content: prompt }] }),
+          });
+          if (res.status === 402) reply.textContent = "Free router allows one reply every 30 seconds.";
+          else if (!res.ok) reply.textContent = "Free router refused the ask (" + res.status + ").";
+          else {
+            const body = await res.json();
+            reply.textContent = (body.choices && body.choices[0] && body.choices[0].message && body.choices[0].message.content) || "Empty reply.";
+          }
+        } catch {
+          reply.textContent = "Free router did not answer.";
+        }
+        button.disabled = false;
+      };
+      load();
+    </script>
+  </body>
+</html>
