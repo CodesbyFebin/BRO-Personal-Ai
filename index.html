@@ -3,48 +3,94 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BRO</title>
-    <meta name="description" content="BRO command desk. Live public GitHub, live marks, free router. No orders." />
+    <meta name="theme-color" content="#050a0d" />
+    <title>BRO // Command Centre</title>
+    <meta name="description" content="BRO command desk with opt-in push-to-talk, live public GitHub, live marks, and a free router. No orders." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" />
     <style>
-      :root { color-scheme: dark; --bg:#030806; --surface:#0b1410; --line:#1c3328; --fg:#e7f6ee; --muted:#7d9b89; --primary:#3dff8a; --danger:#ff6b6b; }
+      :root { color-scheme:dark; --bg:#050a0d; --surface:#0b1418; --line:#1c333b; --fg:#e7f6ee; --muted:#7d999e; --primary:#b4ff39; --cyan:#43f4e2; --pink:#f28cff; --danger:#ff657d; --amber:#ffc866; --mono:"IBM Plex Mono",ui-monospace,monospace; --display:"Chakra Petch",sans-serif; }
       * { box-sizing: border-box; }
-      body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.45 "IBM Plex Mono", ui-monospace, monospace; }
-      header, main { padding:12px; }
-      header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
-      h1 { margin:0; font-family:"Chakra Petch", sans-serif; letter-spacing:.04em; font-size:22px; }
-      .dot { width:8px; height:8px; border-radius:99px; background:var(--primary); display:inline-block; margin-right:8px; }
+      body { margin:0; min-height:100vh; background:radial-gradient(ellipse at 50% -25%,#17313a 0,transparent 55%),linear-gradient(#43f4e207 1px,transparent 1px),linear-gradient(90deg,#43f4e207 1px,transparent 1px),var(--bg); background-size:auto,34px 34px,34px 34px,auto; color:var(--fg); font:14px/1.5 var(--mono); }
+      body:after { content:""; position:fixed; inset:0; pointer-events:none; z-index:5; opacity:.16; background:repeating-linear-gradient(0deg,transparent 0 4px,#d6ffff09 5px); }
+      header, main { padding:14px clamp(14px,3vw,34px); max-width:1540px; margin:auto; }
+      header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); min-height:66px; }
+      h1 { margin:0; font:700 18px var(--display); letter-spacing:.2em; }
+      .brand { display:flex; align-items:center; gap:11px; }
+      .sigil { width:34px; height:34px; display:grid; place-items:center; color:var(--primary); border:1px solid var(--primary); font:700 16px var(--display); clip-path:polygon(14% 0,86% 0,100% 18%,100% 82%,86% 100%,14% 100%,0 82%,0 18%); box-shadow:0 0 20px #b4ff3922; }
+      .brand small { display:block; color:var(--muted); font-size:8px; letter-spacing:.15em; margin-top:2px; }
+      .top-right { display:flex; align-items:center; gap:12px; }
+      .dot { width:7px; height:7px; border-radius:99px; background:var(--cyan); display:inline-block; margin-right:8px; box-shadow:0 0 10px var(--cyan); animation:blink 1.8s infinite; }
       .grid { display:grid; gap:12px; }
-      .stats { grid-template-columns:repeat(2,1fr); }
+      .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .floor { grid-template-columns:1fr; }
-      @media (min-width:900px) { .stats { grid-template-columns:repeat(4,1fr); } .floor { grid-template-columns:1fr 1.2fr; } }
-      .card, .stat { border:1px solid var(--line); background:var(--surface); padding:12px; }
-      .k { color:var(--muted); font-size:11px; letter-spacing:.14em; }
-      .v { color:var(--primary); font-size:28px; margin:2px 0; }
-      h2 { margin:0 0 8px; font-size:12px; letter-spacing:.16em; color:var(--primary); }
+      @media (min-width:900px) { .stats { grid-template-columns:repeat(4,minmax(0,1fr)); } .floor { grid-template-columns:minmax(260px,.8fr) minmax(400px,1.35fr); align-items:start; } }
+      .card, .stat { border:1px solid var(--line); background:linear-gradient(145deg,#0c171cfa,#081015fa); padding:14px; position:relative; overflow:hidden; box-shadow:0 10px 35px #0003; }
+      .stat { min-height:92px; }
+      .stat:after { content:""; position:absolute; width:70px; height:70px; border:1px solid #43f4e216; right:-38px; bottom:-47px; transform:rotate(45deg); }
+      .k { color:var(--muted); font-size:9px; letter-spacing:.14em; }
+      .v { color:var(--primary); font:500 25px var(--display); margin:5px 0 0; }
+      h2 { margin:0 0 10px; font-size:10px; letter-spacing:.16em; color:var(--cyan); }
       a { color:var(--primary); }
-      ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
-      li { display:flex; justify-content:space-between; gap:8px; }
+      ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+      li { display:flex; justify-content:space-between; gap:8px; padding:8px; background:#071014; border:1px solid #152a30; font-size:10px; }
+      li a { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
       button, input { min-height:44px; font:inherit; }
-      button { background:transparent; color:var(--primary); border:1px solid var(--primary); padding:0 12px; }
-      button.solid { background:var(--primary); color:var(--bg); font-weight:600; }
-      input { width:100%; background:var(--bg); color:var(--fg); border:1px solid var(--line); padding:0 12px; }
+      button { background:#0b1519; color:var(--cyan); border:1px solid #28515a; padding:0 12px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; transition:.15s; }
+      button:hover { border-color:var(--cyan); box-shadow:0 0 16px #43f4e218; }
+      button.solid { background:var(--primary); color:#11160b; border-color:var(--primary); font-weight:600; }
+      button.solid:hover { box-shadow:0 0 20px #b4ff3933; }
+      button:disabled { opacity:.5; cursor:wait; }
+      input { width:100%; background:#050c0f; color:var(--fg); border:1px solid #28515a; padding:0 12px; font-size:10px; }
+      input:focus-visible,button:focus-visible,a:focus-visible { outline:2px solid var(--primary); outline-offset:3px; }
       .row { display:flex; gap:8px; margin-top:8px; }
-      .row input { flex:1; }
-      .neg { color:var(--danger); }
-      .note { color:var(--muted); font-size:12px; margin-top:8px; }
-      #reply { white-space:pre-wrap; }
-      .seat { animation: pulse 1.6s ease-in-out infinite; }
-      @keyframes pulse { 50% { box-shadow:0 0 12px var(--primary); } }
+      .row input { flex:1; min-width:0; }
+      .neg { color:var(--danger)!important; }
+      .note { color:var(--muted); font-size:9px; line-height:1.6; margin:8px 0; }
+      #reply { white-space:pre-wrap; overflow-wrap:anywhere; color:#d7e5e3; font-size:10px; line-height:1.7; }
+      .seat { color:var(--primary); }
+      .hero { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:22px 4px; }
+      .eyebrow { color:var(--primary); font-size:8px; letter-spacing:.2em; }
+      .hero strong { display:block; font:600 clamp(26px,4vw,40px)/1.1 var(--display); letter-spacing:.04em; margin:7px 0; }
+      .hero strong span { color:var(--primary); }
+      .hero p { color:var(--muted); font-size:10px; max-width:660px; margin:0; }
+      .hero-core { width:115px; height:115px; flex:none; border:1px solid #43f4e255; border-radius:50%; display:grid; place-items:center; position:relative; box-shadow:0 0 26px #43f4e213,inset 0 0 24px #43f4e212; }
+      .hero-core:before,.hero-core:after { content:""; position:absolute; inset:8px; border:1px dashed #43f4e270; border-radius:50%; animation:spin 18s linear infinite; }
+      .hero-core:after { inset:22px; border-color:#f28cff55; border-style:solid; animation-direction:reverse; animation-duration:12s; }
+      .hero-core b { position:relative; z-index:1; color:var(--primary); font:700 16px var(--display); letter-spacing:.2em; }
+      .voice-orbit { height:130px; display:grid; place-items:center; position:relative; margin:0 auto 10px; }
+      .voice-orbit:before,.voice-orbit:after { content:""; position:absolute; width:118px; aspect-ratio:1; border:1px solid #43f4e255; border-radius:50%; animation:spin 19s linear infinite; }
+      .voice-orbit:after { width:94px; border:1px dashed #f28cff66; animation-direction:reverse; animation-duration:12s; }
+      .voice-core { width:66px; height:66px; position:relative; z-index:1; border-radius:50%; background:radial-gradient(circle at 50% 40%,#14515b,#071114 72%); border:1px solid var(--cyan); box-shadow:0 0 27px #43f4e255,inset 0 0 18px #43f4e22b; display:grid; place-content:center; text-align:center; }
+      .voice-core b { color:var(--primary); font:700 17px var(--display); letter-spacing:.1em; }
+      .voice-core small { color:var(--cyan); font-size:7px; letter-spacing:.12em; }
+      .voice-state { color:var(--cyan); font-size:8px; letter-spacing:.14em; text-transform:uppercase; }
+      .voice-title { font:600 17px var(--display); margin:6px 0; }
+      .voice-detail { color:var(--muted); font-size:9px; }
+      .voice-transcript { min-height:42px; max-height:86px; overflow:auto; padding:9px; margin-top:10px; border-left:2px solid var(--primary); background:#050c0f; color:#a9c2bd; font-size:9px; overflow-wrap:anywhere; }
+      .voice-controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--line); }
+      .voice-controls label { color:var(--muted); font-size:8px; display:flex; gap:6px; align-items:center; }
+      .voice-controls input[type=checkbox] { width:14px; min-height:14px; accent-color:var(--primary); }
+      .privacy { margin-left:auto; color:#6d858a; font-size:8px; max-width:245px; text-align:right; }
+      .voice-panel.listening .voice-core { border-color:var(--primary); box-shadow:0 0 38px #b4ff3977,inset 0 0 22px #b4ff3933; animation:breathe .7s ease-in-out infinite alternate; }
+      .voice-panel.thinking .voice-core { border-color:var(--pink); box-shadow:0 0 35px #f28cff55,inset 0 0 18px #f28cff22; animation:breathe 1s ease-in-out infinite alternate; }
+      .voice-panel.speaking .voice-core { border-color:var(--primary); box-shadow:0 0 40px #b4ff396b,inset 0 0 22px #b4ff3933; animation:breathe .4s ease-in-out infinite alternate; }
+      .voice-panel.error .voice-core { border-color:var(--danger); box-shadow:0 0 30px #ff657d55; }
+      .quick { min-height:30px; padding:0 8px; font-size:8px; }
+      @keyframes spin { to { transform:rotate(360deg); } }
+      @keyframes breathe { to { transform:scale(1.06); } }
+      @keyframes blink { 50% { opacity:.4; } }
+      @media(max-width:600px) { .hero-core { display:none; } .hero { padding:16px 2px; } .row { display:grid; grid-template-columns:1fr 85px; } .voice-controls .privacy { flex-basis:100%; max-width:none; text-align:left; margin-left:0; } }
+      @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; } }
     </style>
   </head>
   <body>
     <header>
-      <h1><span class="dot"></span>BRO</h1>
-      <span id="clock" class="k"></span>
+      <div class="brand"><span class="sigil">B</span><span><h1>BRO</h1><small>PERSONAL AI / COMMAND DESK</small></span></div>
+      <span class="top-right"><span id="systemStatus" class="k"><i class="dot"></i>PUBLIC FEEDS</span><span id="clock" class="k">--:--:--</span></span>
     </header>
     <main class="grid">
+      <section class="hero"><div><div class="eyebrow">// SYSTEMS NOMINAL · PUBLIC SIGNALS</div><strong>COMMAND <span>CENTRE</span></strong><p>One desk for live public signals and quick questions. Talk to BRO when you choose. Mic opt-in, prompt routing disclosed, actions disabled.</p></div><div class="hero-core" aria-hidden="true"><b>BRO</b></div></section>
       <section class="grid stats" aria-label="Desk counts">
         <div class="stat"><div class="k">GITHUB</div><div class="v" id="repoCount">…</div><div class="note">public repos</div></div>
         <div class="stat"><div class="k">ORE</div><div class="v" id="oreMark">…</div><div class="note" id="orePx">live mark</div></div>
@@ -58,18 +104,24 @@
           <p class="note" id="feed">Fetching CodesbyFebin public repos.</p>
           <button type="button" id="sync">Sync</button>
         </article>
-        <article class="card">
-          <h2>ASK</h2>
-          <p class="note">The free router answers in the browser. Grok stays on the private desk, because a static page cannot hold that key.</p>
+        <article class="card voice-panel idle" id="voicePanel">
+          <h2>03 / BRO VOICE CORE <span class="voice-state" id="voiceState">STANDBY · PUSH TO TALK</span></h2>
+          <div class="voice-orbit" aria-hidden="true"><div class="voice-core"><b>BRO</b><small>VOICE CORE</small></div></div>
+          <div class="voice-title" id="voiceTitle">Standing by, operator.</div>
+          <div class="voice-detail" id="voiceDetail">Press the mic to speak or type a question. No background listening.</div>
+          <div class="voice-transcript" id="transcript" role="status" aria-live="polite">Awaiting input…</div>
+          <div class="voice-controls"><button type="button" id="mic" aria-pressed="false">◉ &nbsp;Talk to BRO</button><label><input id="voiceReplies" type="checkbox" /> Speak text replies</label><span class="privacy">Browser speech input may use its speech service. Mic activates only after your click.</span></div>
+          <p class="note">ASK · The free router answers in the browser. Your prompt leaves this page. Do not enter secrets or private messages.</p>
           <div class="row">
-            <input id="prompt" maxlength="500" value="What is on this desk?" />
-            <button class="solid" type="button" id="ask">Ask</button>
+            <input id="prompt" maxlength="500" placeholder="Ask BRO something… avoid secrets" aria-label="Ask BRO a question" />
+            <button class="solid" type="button" id="ask">Ask BRO</button>
           </div>
-          <p id="reply"></p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><button type="button" class="quick" data-prompt="What is on this desk?">Desk brief</button><button type="button" class="quick" data-prompt="Summarize the latest public repositories shown here.">GitHub brief</button><button type="button" class="quick" data-prompt="Explain these marks and what they do not tell us.">Signal context</button></div>
+          <div id="replyBox" class="note" aria-live="polite"><span id="replyLabel">BRO / RESPONSE</span><p id="reply"></p><button id="stopSpeech" type="button" class="quick" style="display:none">Stop voice</button></div>
         </article>
       </section>
       <article class="card">
-        <h2>CREW</h2>
+        <h2>04 / CREW</h2>
         <ul>
           <li><span class="seat">Watch</span><span id="watch">Waiting on marks.</span></li>
           <li><span>Thesis</span><span id="thesis">One claim from the marks.</span></li>
@@ -83,21 +135,29 @@
       const SOL = "So11111111111111111111111111111111111111112";
       const tick = () => {
         const now = new Date();
-        document.getElementById("clock").textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        document.getElementById("clock").textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
       };
       tick();
       setInterval(tick, 15000);
       const pct = (n) => (n < 0 ? "−" : "+") + Math.abs(n).toFixed(1) + "%";
       const money = (n) => "$" + Number(n).toFixed(n >= 1 ? 2 : 4);
       function pair(body, symbol) {
-        const pairs = (body.pairs || []).filter((p) => p.chainId === "solana" && p.baseToken && p.baseToken.symbol === symbol);
+        const pairs = (body.pairs || []).filter((p) => p.chainId === "solana" && p.baseToken && p.baseToken.symbol === symbol && Number.isFinite(Number(p.priceUsd)));
         pairs.sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
-        return pairs[0];
+        return pairs[0] || null;
       }
       async function load() {
         const feed = document.getElementById("feed");
+        const syncButton = document.getElementById("sync");
+        syncButton.disabled = true;
+        feed.textContent = "Syncing public feeds…";
+        const getJson = async (url) => {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Source returned " + response.status);
+          return response.json();
+        };
         try {
-          const repos = await fetch("https://api.github.com/users/CodesbyFebin/repos?sort=updated&per_page=6").then((r) => r.json());
+          const repos = await getJson("https://api.github.com/users/CodesbyFebin/repos?sort=updated&per_page=6");
           const list = document.getElementById("repos");
           list.replaceChildren();
           (Array.isArray(repos) ? repos : []).forEach((repo) => {
@@ -113,64 +173,197 @@
             list.append(li);
           });
           document.getElementById("repoCount").textContent = String(list.children.length);
+          document.getElementById("repoCount").className = "v";
+          document.getElementById("systemStatus").setAttribute("aria-label", "Public feeds active");
         } catch {
+          document.getElementById("repos").replaceChildren();
           feed.textContent = "GitHub did not answer.";
+          document.getElementById("repoCount").textContent = "N/A";
         }
-        try {
-          const [oreBody, solBody, usdcBody] = await Promise.all([
-            fetch("https://api.dexscreener.com/latest/dex/tokens/" + ORE).then((r) => r.json()),
-            fetch("https://api.dexscreener.com/latest/dex/tokens/" + SOL).then((r) => r.json()),
-            fetch("https://api.coinbase.com/v2/prices/USDC-USD/spot").then((r) => r.json()),
-          ]);
-          const ore = pair(oreBody, "ORE");
-          const sol = pair(solBody, "SOL");
-          if (ore) {
-            document.getElementById("oreMark").textContent = pct(ore.priceChange && ore.priceChange.h24 || 0);
-            document.getElementById("oreMark").className = (ore.priceChange && ore.priceChange.h24 < 0) ? "v neg" : "v";
-            document.getElementById("orePx").textContent = money(ore.priceUsd);
-            document.getElementById("watch").textContent = "ORE " + money(ore.priceUsd) + " " + pct(ore.priceChange && ore.priceChange.h24 || 0);
-            document.getElementById("thesis").textContent = (ore.priceChange && ore.priceChange.h24 < 0) ? "ORE is the red sleeve. Inferred from the live mark, not an order." : "No red sleeve on ORE.";
-          }
-          if (sol) {
-            document.getElementById("solMark").textContent = pct(sol.priceChange && sol.priceChange.h24 || 0);
-            document.getElementById("solMark").className = (sol.priceChange && sol.priceChange.h24 < 0) ? "v neg" : "v";
-            document.getElementById("solPx").textContent = money(sol.priceUsd);
-          }
-          const usdc = Number(usdcBody.data && usdcBody.data.amount);
-          if (Number.isFinite(usdc)) {
-            document.getElementById("usdcMark").textContent = "0.0%";
-            document.getElementById("usdcPx").textContent = money(usdc);
-          }
-          feed.textContent = "Live public repos and marks. No order was sent.";
-        } catch {
-          feed.textContent = "Marks did not load.";
+        const [oreResult, solResult, usdcResult] = await Promise.allSettled([
+          getJson("https://api.dexscreener.com/latest/dex/tokens/" + ORE),
+          getJson("https://api.dexscreener.com/latest/dex/tokens/" + SOL),
+          getJson("https://api.coinbase.com/v2/prices/USDC-USD/spot"),
+        ]);
+        const ore = oreResult.status === "fulfilled" ? pair(oreResult.value, "ORE") : null;
+        const sol = solResult.status === "fulfilled" ? pair(solResult.value, "SOL") : null;
+        const usdcBody = usdcResult.status === "fulfilled" ? usdcResult.value : null;
+        if (ore) {
+          const change = Number(ore.priceChange && ore.priceChange.h24);
+          document.getElementById("oreMark").textContent = Number.isFinite(change) ? pct(change) : "N/A";
+          document.getElementById("oreMark").className = "v" + (change < 0 ? " neg" : "");
+          document.getElementById("orePx").textContent = money(ore.priceUsd);
+          document.getElementById("watch").textContent = "ORE " + money(ore.priceUsd) + (Number.isFinite(change) ? " " + pct(change) : "");
+          document.getElementById("thesis").textContent = !Number.isFinite(change) ? "ORE mark loaded; 24h change unavailable." : change < 0 ? "ORE is negative over 24h. This is a mark, not a forecast." : "ORE is not negative over 24h. One public mark only.";
+        } else {
+          document.getElementById("oreMark").textContent = "N/A"; document.getElementById("orePx").textContent = "source unavailable";
+          document.getElementById("watch").textContent = "ORE mark unavailable."; document.getElementById("thesis").textContent = "No read: ORE source did not return a usable pair.";
         }
+        if (sol) {
+          const change = Number(sol.priceChange && sol.priceChange.h24);
+          document.getElementById("solMark").textContent = Number.isFinite(change) ? pct(change) : "N/A";
+          document.getElementById("solMark").className = "v" + (change < 0 ? " neg" : "");
+          document.getElementById("solPx").textContent = money(sol.priceUsd);
+        } else { document.getElementById("solMark").textContent = "N/A"; document.getElementById("solPx").textContent = "source unavailable"; }
+        const usdc = Number(usdcBody && usdcBody.data && usdcBody.data.amount);
+        if (Number.isFinite(usdc)) { document.getElementById("usdcMark").textContent = "SPOT"; document.getElementById("usdcPx").textContent = money(usdc); }
+        else { document.getElementById("usdcMark").textContent = "N/A"; document.getElementById("usdcPx").textContent = "source unavailable"; }
+        const marketCount = [ore, sol, Number.isFinite(usdc)].filter(Boolean).length;
+        feed.textContent = "Public feeds: GitHub " + (document.getElementById("repoCount").textContent === "N/A" ? "unavailable" : "ready") + "; market sources " + marketCount + "/3. No order was sent.";
+        document.getElementById("systemStatus").innerHTML = '<i class="dot"></i>' + (marketCount ? "PUBLIC FEEDS / LIVE" : "FEEDS / DEGRADED");
+        syncButton.disabled = false;
       }
       document.getElementById("sync").onclick = load;
-      document.getElementById("ask").onclick = async () => {
-        const button = document.getElementById("ask");
-        const prompt = document.getElementById("prompt").value.trim();
-        const reply = document.getElementById("reply");
-        if (!prompt) return;
-        button.disabled = true;
-        reply.textContent = "Asking the free router.";
+      let recognition = null;
+      let listening = false;
+      let voiceReplyMode = false;
+      let submittedVoice = false;
+      const promptInput = document.getElementById("prompt");
+      const askButton = document.getElementById("ask");
+      const voicePanel = document.getElementById("voicePanel");
+      const micButton = document.getElementById("mic");
+      const voiceReplies = document.getElementById("voiceReplies");
+      const transcript = document.getElementById("transcript");
+      const replyNode = document.getElementById("reply");
+      const stopSpeechButton = document.getElementById("stopSpeech");
+      function voiceStatus(mode, label, title, detail) {
+        voicePanel.className = "card voice-panel " + mode;
+        document.getElementById("voiceState").textContent = label;
+        document.getElementById("voiceTitle").textContent = title;
+        document.getElementById("voiceDetail").textContent = detail;
+      }
+      function haltSpeech() {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        stopSpeechButton.style.display = "none";
+      }
+      function speak(text) {
+        if (!voiceReplyMode || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+        haltSpeech();
+        const utterance = new SpeechSynthesisUtterance(String(text).slice(0, 900));
+        utterance.rate = 1.02;
+        stopSpeechButton.style.display = "inline-block";
+        utterance.onstart = () => voiceStatus("speaking", "BRO / SPEAKING", "Here’s the reply.", "Press the mic to stop playback and ask another question.");
+        utterance.onend = () => {
+          stopSpeechButton.style.display = "none";
+          if (!listening) voiceStatus("idle", "STANDBY · PUSH TO TALK", "Standing by, operator.", "Ask another question or use the text field.");
+        };
+        utterance.onerror = () => {
+          stopSpeechButton.style.display = "none";
+          if (!listening) voiceStatus("error", "VOICE OUTPUT / ERROR", "Speech output stopped.", "The written response is still available above.");
+        };
+        window.speechSynthesis.speak(utterance);
+      }
+      async function ask(fromVoice = false) {
+        const prompt = promptInput.value.trim();
+        if (!prompt || askButton.disabled) return;
+        askButton.disabled = true;
+        document.getElementById("replyLabel").textContent = "BRO / ROUTING";
+        replyNode.textContent = "Sending your question to the public free router…";
+        transcript.textContent = "YOU: " + prompt;
+        if (fromVoice || voiceReplyMode) voiceStatus("thinking", "BRO / PROCESSING", "Question received.", "The public free router is preparing a response.");
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 45000);
         try {
           const res = await fetch("https://text.pollinations.ai/openai", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ model: "openai", messages: [{ role: "user", content: prompt }] }),
+            signal: controller.signal,
           });
-          if (res.status === 402) reply.textContent = "Free router allows one reply every 30 seconds.";
-          else if (!res.ok) reply.textContent = "Free router refused the ask (" + res.status + ").";
-          else {
-            const body = await res.json();
-            reply.textContent = (body.choices && body.choices[0] && body.choices[0].message && body.choices[0].message.content) || "Empty reply.";
-          }
-        } catch {
-          reply.textContent = "Free router did not answer.";
+          if (res.status === 402) throw new Error("Free router rate limit. Wait a little, then try again.");
+          if (!res.ok) throw new Error("Free router refused the ask (" + res.status + ").");
+          const body = await res.json();
+          const answer = body && body.choices && body.choices[0] && body.choices[0].message && body.choices[0].message.content;
+          if (!answer || !String(answer).trim()) throw new Error("The router returned an empty reply.");
+          document.getElementById("replyLabel").textContent = "BRO / RESPONSE";
+          replyNode.textContent = String(answer).trim();
+          transcript.textContent = "BRO: " + String(answer).trim();
+          if (fromVoice || voiceReplyMode) speak(String(answer).trim());
+          else voiceStatus("idle", "RESPONSE READY", "Reply received.", "Read the response or turn on speech replies.");
+        } catch (error) {
+          const message = error && error.name === "AbortError" ? "The free router timed out. Try again." : (error.message || "The free router did not answer.");
+          document.getElementById("replyLabel").textContent = "BRO / ROUTER ERROR";
+          replyNode.textContent = message;
+          transcript.textContent = message;
+          voiceStatus("error", "ASK / UNAVAILABLE", "I couldn’t get a response.", "Your question remains in the field. Retry or use text.");
+          if (fromVoice || voiceReplyMode) speak(message);
+        } finally {
+          clearTimeout(timeout);
+          askButton.disabled = false;
         }
-        button.disabled = false;
+      }
+      askButton.onclick = () => ask(false);
+      promptInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { event.preventDefault(); ask(false); }
+      });
+      document.querySelectorAll("[data-prompt]").forEach((button) => {
+        button.addEventListener("click", () => { promptInput.value = button.dataset.prompt; promptInput.focus(); });
+      });
+      voiceReplies.addEventListener("change", () => {
+        voiceReplyMode = voiceReplies.checked;
+        if (!voiceReplyMode) {
+          haltSpeech();
+          voiceStatus("idle", "VOICE CORE / MUTED", "Voice replies are off.", "BRO will show answers as text.");
+        } else voiceStatus("idle", "VOICE CORE / READY", "Voice replies are on.", "Text questions will be spoken after BRO responds.");
+      });
+      stopSpeechButton.onclick = () => {
+        haltSpeech();
+        voiceStatus("idle", "VOICE CORE / STOPPED", "Speech stopped.", "The written response remains available.");
       };
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) voiceReplies.disabled = true;
+      if (!SpeechRecognition) {
+        micButton.disabled = true;
+        micButton.textContent = "MIC NOT AVAILABLE";
+        if (!("speechSynthesis" in window)) voiceReplies.disabled = true;
+        voiceStatus("idle", "PUSH TO TALK / UNSUPPORTED", "Voice input is unavailable here.", "Use the text field. Browser speech support varies.");
+      } else {
+        recognition = new SpeechRecognition();
+        recognition.lang = navigator.language || "en-US";
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+        recognition.onstart = () => {
+          listening = true;
+          submittedVoice = false;
+          voiceReplyMode = true;
+          voiceReplies.checked = true;
+          micButton.setAttribute("aria-pressed", "true");
+          micButton.textContent = "■ Stop / interrupt";
+          voiceStatus("listening", "MIC ACTIVE / LISTENING", "I’m listening, operator.", "Say one question. Press stop to interrupt.");
+          transcript.textContent = "Listening for your question…";
+        };
+        recognition.onresult = (event) => {
+          const results = Array.from(event.results);
+          const interim = results.filter((item) => !item.isFinal).map((item) => item[0].transcript).join(" ").trim();
+          const finalText = results.filter((item) => item.isFinal).map((item) => item[0].transcript).join(" ").trim();
+          if (interim) transcript.textContent = "HEARING: " + interim;
+          if (finalText && !submittedVoice) {
+            submittedVoice = true;
+            promptInput.value = finalText;
+            ask(true);
+          }
+        };
+        recognition.onerror = (event) => {
+          listening = false;
+          micButton.setAttribute("aria-pressed", "false");
+          micButton.textContent = "◉ Talk to BRO";
+          if (event.error !== "no-speech") voiceStatus("error", "MIC / " + String(event.error || "ERROR").toUpperCase(), "I couldn’t hear that.", "Check browser mic permission or use the text field.");
+        };
+        recognition.onend = () => {
+          listening = false;
+          submittedVoice = false;
+          micButton.setAttribute("aria-pressed", "false");
+          micButton.textContent = "◉ Talk to BRO";
+          if (voicePanel.classList.contains("listening")) voiceStatus("idle", "STANDBY · PUSH TO TALK", "Standing by, operator.", "Ask another question or use the text field.");
+        };
+        micButton.onclick = () => {
+          if (listening) { recognition.stop(); return; }
+          haltSpeech();
+          submittedVoice = false;
+          try { recognition.start(); }
+          catch { voiceStatus("error", "MIC / NOT READY", "Microphone is not ready.", "Wait a moment, then press Talk to BRO again."); }
+        };
+      }
       load();
     </script>
   </body>
