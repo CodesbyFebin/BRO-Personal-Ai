@@ -10,7 +10,7 @@
 
 # BRO
 
-BRO is a personal AI command desk. The public page on GitHub Pages reads live data in the browser and answers through a free router. It does not send trades, it does not hold API keys, and it does not pretend a local rule is a cloud model.
+BRO is a personal AI command desk. The public page on GitHub Pages reads live data in the browser, answers through a free router, and offers opt-in browser push-to-talk and speech replies. It does not send trades, it does not hold API keys, and it does not pretend a local rule is a cloud model.
 
 This repository is the static desk. A fuller command centre, with an xAI queen, a signing gate, and a model roster, can run on a server. That server is not what GitHub Pages hosts. The pages below say which surface does which job, so a reader can tell a live fetch from a label.
 
@@ -20,14 +20,14 @@ Built by [CodesbyFebin](https://github.com/CodesbyFebin).
 
 The published page is [codesbyfebin.github.io/bro](https://codesbyfebin.github.io/bro/).
 
-On load it does four things:
+On load it does three things:
 
 1. It reads the clock in the browser.
 2. It asks the public GitHub API for the latest repositories under CodesbyFebin.
 3. It asks Dexscreener for ORE and SOL, and Coinbase for the USDC spot.
-4. It waits. Nothing is sent until you press Ask or Sync.
+It does not ask for microphone access or send a prompt until you choose an action. Press **Talk to BRO** to begin a single push-to-talk interaction. Browser speech recognition may use the speech service configured by the browser. There is no wake word or background listening. A voice question goes to the same free router as typed questions, and the returned answer is spoken by the browser when voice replies are enabled.
 
-Sync repeats the GitHub and mark fetch. Ask posts one short prompt to the anonymous free router. If that router answers `402`, the page says the free tier allows about one reply every 30 seconds. It does not invent a reply.
+Sync repeats the GitHub and mark fetch. Ask posts one short prompt to the anonymous free router. Prompts leave the browser, so do not enter secrets or private messages. If that router answers `402`, the page reports the rate limit. It does not invent a reply.
 
 The crew lines on the page are computed from those marks. Watch names the ORE print. Thesis says whether ORE is the red sleeve. Neither line is an order.
 
@@ -53,11 +53,13 @@ These calls leave the browser. They use public endpoints. They do not use a toke
 
 **SOL.** Dexscreener token `So11111111111111111111111111111111111111112`, the wrapped SOL mint, same liquidity rule, same 24 hour field.
 
-**USDC.** Coinbase spot `USDC-USD`. The change is shown as `0.0%` because that endpoint returns a spot amount, not a 24 hour percent. The price is the spot. It is not a made-up peg.
+**USDC.** Coinbase spot `USDC-USD`. The interface labels this as a spot quote and does not invent a 24 hour percent.
 
 **Ask.** `POST https://text.pollinations.ai/openai` with model `openai`. That name is the anonymous model on the classic free router. The page prints the text in `choices[0].message.content` and nothing else. It does not claim the answer came from Claude, Gemini, or Grok.
 
 If a feed fails, the page says which feed failed. It does not fall back to a canned price.
+
+**Voice.** The page uses browser `SpeechRecognition`/`webkitSpeechRecognition` for click-to-talk input when supported and `speechSynthesis` for optional spoken replies. Browser support varies. Mic access is user-triggered and interruptible. Speech input may be handled by the browser's configured speech service; the page does not promise on-device transcription.
 
 ## What is not live
 
@@ -67,18 +69,18 @@ A static page cannot do the jobs that need a secret or a signature.
 - It cannot call FreeLLMAPI. That router is local, at a `/v1` you run, and it wants `FREELLMAPI_URL` plus `FREELLMAPI_KEY`.
 - It cannot place an order on an exchange. There is no wallet, no transaction, and no "confirm trade" button.
 - It cannot see private GitHub data, Slack, a calendar account, or a bank.
-- It cannot speak with a paid voice, draw an image, or render a clip. Those benches exist only where a server key is present.
+- It does not use a paid voice service, wake-word listener, or streaming speech model. Browser speech output is a convenience feature; it is not a sub-two-second voice pipeline or a server agent.
 - The crew sentence is a reading of the mark you just fetched. It is not a forecast and not a fill.
 
 If a sentence on the desk says "no order was sent", that sentence is the product rule, not a caption on a hidden trade.
 
 ## How the page is built
 
-The file is one HTML document. CSS and JavaScript sit in the same file so GitHub Pages has nothing to compile. The type is dark. The background is `#030806`. The mark is `#3dff8a`. Negative percents use `#ff6b6b`. Body type is IBM Plex Mono, with Chakra Petch on the wordmark, both loaded from Google Fonts. If the font host is blocked, the page falls back to a monospace stack and still works.
+The file is one HTML document. CSS and JavaScript sit in the same file so GitHub Pages has nothing to compile. The dark HUD uses a blue-black grid, acid green and cyan accents, and an animated voice core. Body type is IBM Plex Mono, with Chakra Petch on the wordmark, both loaded from Google Fonts. If the font host is blocked, the page falls back to a monospace stack and still works.
 
-Layout is a header, four counters, then two cards. The left card is GitHub. The right card is Ask. Under them, three crew lines. On a narrow screen the counters are two columns. From 900 pixels wide they are four, and the two cards sit side by side.
+Layout is a header and system status, a command-centre hero, four live counters, then a GitHub feed beside the central voice/Ask console. The crew readout is below. On a narrow screen the counters stack in two columns and the panels flow vertically.
 
-Buttons are at least 44 pixels tall. Links open in a new tab with `rel="noreferrer"`. The prompt field stops at 500 characters, matching the cap used by the server desk.
+Primary controls are at least 44 pixels tall. Quick prompts are compact. Links open in a new tab with `rel="noreferrer"`. The prompt field stops at 500 characters, matching the cap used by the server desk.
 
 There is no framework, no analytics snippet, and no cookie banner because the page sets no cookie. The only storage is whatever the browser does for a normal fetch. The desk does not write `localStorage` on this static build.
 
@@ -102,18 +104,18 @@ Status handling:
 | Status | What the page prints |
 | --- | --- |
 | 200 with text | The reply |
-| 402 | Free router allows one reply every 30 seconds |
+| 402 | Free router rate limit; wait and retry later |
 | Other non-200 | Free router refused the ask, plus the status |
 | Network error | Free router did not answer |
 | 200 with an empty choice | Empty reply |
 
-There is no retry loop. A second press before the window resets will hit the same limit and say so.
+There is no automatic retry loop. The request is cancelled after 45 seconds. A second press before the rate limit resets may hit the same limit again.
 
 ## Marks, in detail
 
 A mark has two parts: a dollar price and a signed percent.
 
-The percent comes from Dexscreener `priceChange.h24` for ORE and SOL. The page formats a negative number with a minus sign and one decimal, for example `−3.1%`. A positive number gets a plus. Zero prints as `+0.0%` for those two, and as `0.0%` for USDC, because USDC has no 24 hour field on the spot call.
+The percent comes from Dexscreener `priceChange.h24` for ORE and SOL. The page formats a negative number with a minus sign and one decimal, for example `−3.1%`. A positive number gets a plus. If the 24 hour change is absent, the page shows `N/A`. USDC shows `SPOT`, because its Coinbase endpoint has no 24 hour field.
 
 The dollar print uses two decimals at or above one dollar, and four decimals below that. ORE and SOL are both well above one dollar at the time this desk was wired, so you should see cents, not a long tail. If a future print is a fraction of a dollar, the page will show four places rather than round it to zero.
 
@@ -295,7 +297,7 @@ A one-door router is the idea that one job enters and a policy picks a seat, wit
 
 An agent card is a seat with a skill and a text modality. The server colony shows those cards. A job moves through queued, running, and review. Nothing on the card calls an outside agent by itself.
 
-A voice bench is a local listen button plus a separate spend path for a paid voice. The server studio splits them. This page has neither, because both need a browser permission or a key, and the public file keeps the surface to reads and one anonymous ask.
+A server voice bench can add local streaming speech and a separate paid voice path. This public page has only browser-provided push-to-talk and speech synthesis, with an explicit mic click and no wake word. It has no paid voice key, no server voice pipeline, and no latency claim.
 
 FreeLLMAPI is a local OpenAI-shaped router with virtual models `auto`, `auto:fast`, and `auto:smart`, and a response header that names the chain. The server desk can call it. This repository does not embed it. You run it yourself if you want those chains.
 
@@ -321,17 +323,17 @@ FreeLLMAPI is a local OpenAI-shaped router with virtual models `auto`, `auto:fas
 
 ## A short tour, in order
 
-Open the live URL. The header is the word BRO and a clock. The clock uses your machine's locale, with hours and minutes, and it updates every 15 seconds. It is not a market clock and not a session clock from an exchange.
+Open the live URL. The header is the word BRO, public-feed status, and a clock. The clock uses your machine's locale and updates every second. It is not a market clock and not a session clock from an exchange.
 
-The four counters start as ellipses. They fill when the fetches return. GitHub's counter is the number of repositories in the list, at most six. The other three counters are the 24 hour percents, or `0.0%` for USDC. Under each percent is the dollar print, in smaller type.
+The four counters start as ellipses. They fill when the fetches return. GitHub's counter is the number of repositories in the list, at most six. ORE and SOL show 24 hour percent changes; USDC shows `SPOT`. Under each market figure is the dollar print, in smaller type.
 
 The GitHub card lists names as links. The star count sits on the right. Sync is under the list. The line under Sync is the feed status. A good fetch says the repos and marks are live and that no order was sent. A bad fetch names the side that failed.
 
-The Ask card has one sentence of warning, a field, and a button. The field starts with a harmless prompt so you can see a round trip without inventing one. Change it before you press Ask if you want a different question. The reply replaces the status line under the button. It is not pushed into a log.
+The central voice card has an animated core, opt-in mic control, a visible transcript, a text field, and a response area. Press Talk to BRO for one voice turn; press it again to stop listening or interrupt speech output. Turn on Speak text replies if you want typed questions spoken too. The question field is blank until you enter a prompt or pick a quick example.
 
-The crew card is last. Watch updates when ORE has a price. Thesis updates from the sign of the ORE percent. Size does not update, because the public page does not keep weights. The note under the card repeats the rule: live marks, and a pass does not send an order. There is no pass button. The sentence is aimed at the reader who will look for one.
+The crew card is last. Watch updates when ORE has a price. Thesis updates from the sign of the ORE percent, and labels it as a mark rather than a forecast. Size does not update, because the public page does not keep weights. The note under the card repeats the rule: live marks, and a pass does not send an order. There is no pass button.
 
-That is the whole page. If you see a control that is not in this tour, it is not part of this repository's build.
+Sync reloads the public GitHub and market feeds. The system status distinguishes loaded feeds from unavailable ones. No wallet or order controls are present.
 
 ## Numbers the desk refuses to invent
 
@@ -363,4 +365,4 @@ The hero image is a wordmark for this README. It is not a trademark filing and n
 
 ## Status
 
-The public desk is a static file with live reads and one anonymous ask. The server roster, the signing crew, and the voice bench are described so they are not confused with this file. If a line in this README and a button on the live page disagree, trust the page, then fix the README. The page is the build. This document is the map.
+The public desk is a static file with live reads, one anonymous ask, and an opt-in browser voice interaction. The server roster, signing crew, paid voice services, and autonomous execution are not part of this file. If a line in this README and a button on the live page disagree, trust the page, then fix the README. The page is the build. This document is the map.
