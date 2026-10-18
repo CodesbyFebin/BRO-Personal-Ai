@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+*.zip
+target/
+dist/
+build/

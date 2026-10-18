@@ -1,0 +1,25 @@
+services:
+  bro:
+    build: .
+    container_name: bro-command-center
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      BRO_HOST: 0.0.0.0
+      BRO_PORT: 8787
+      BRO_DB_PATH: /app/data/bro.db
+      BRO_OLLAMA_MODEL: ${BRO_OLLAMA_MODEL:-}
+      BRO_OLLAMA_URL: ${BRO_OLLAMA_URL:-http://host.docker.internal:11434/api/chat}
+      BRO_DEBATE_PROVIDERS: ${BRO_DEBATE_PROVIDERS:-}
+      BRO_MODELS: ${BRO_MODELS:-}
+    volumes:
+      - bro_data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  bro_data:
