@@ -12,7 +12,7 @@
 
 BRO is a personal AI command desk. The public page on GitHub Pages reads live data in the browser, answers through a free router, and offers opt-in browser push-to-talk and speech replies. It does not send trades, it does not hold API keys, and it does not pretend a local rule is a cloud model.
 
-This repository is the static desk. A fuller command centre, with an xAI queen, a signing gate, and a model roster, can run on a server. That server is not what GitHub Pages hosts. The pages below say which surface does which job, so a reader can tell a live fetch from a label.
+The root `index.html` remains the static GitHub Pages desk. The runnable, server-backed Command Centre is in [`command-centre/`](command-centre/README.md); it includes Task Console, Mission Board, Event Stream, Cloud Models, Agent Crew, Memory Core, and Safety Gate sections. Cloud model keys stay in the server environment. GitHub Pages does not run that backend.
 
 Built by [CodesbyFebin](https://github.com/CodesbyFebin).
 
